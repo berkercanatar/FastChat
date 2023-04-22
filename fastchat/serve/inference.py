@@ -106,11 +106,12 @@ def load_model(
         raise ValueError(f"Invalid device: {device}")
 
     if wbits > 0:
-        print("Loading GPTQ tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
         from fastchat.serve.load_gptq_model import load_quantized
         print("Loading GPTQ quantized model...")
         model = load_quantized(model_path)
+
+        print("Loading GPTQ tokenizer...")
+        tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     elif "chatglm" in model_path:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
         model = AutoModel.from_pretrained(
