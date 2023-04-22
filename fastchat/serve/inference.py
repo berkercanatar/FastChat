@@ -74,7 +74,7 @@ def get_gpu_memory(max_gpus=None):
 
 
 def load_model(
-    model_path, device, num_gpus, max_gpu_memory=None, load_8bit=False, debug=False
+    model_path, device, num_gpus, max_gpu_memory=None, load_8bit=False, debug=False, wbits=0, groupsize=0
 ):
     if device == "cpu":
         kwargs = {}
@@ -105,7 +105,13 @@ def load_model(
     else:
         raise ValueError(f"Invalid device: {device}")
 
-    if "chatglm" in model_path:
+    if wbits > 0:
+        print("Loading GPTQ tokenizer...")
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        from fastchat.serve.load_gptq_model import load_quantized
+        print("Loading GPTQ quantized model...")
+        model = load_quantized(model_path)
+    elif "chatglm" in model_path:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
         model = AutoModel.from_pretrained(
             model_path, trust_remote_code=True, **kwargs
@@ -261,12 +267,14 @@ def chat_loop(
     conv_template: Optional[str],
     temperature: float,
     max_new_tokens: int,
+    wbits: int,
+    groupsize: int,
     chatio: ChatIO,
-    debug: bool,
+    debug: bool
 ):
     # Model
     model, tokenizer = load_model(
-        model_path, device, num_gpus, max_gpu_memory, load_8bit, debug
+        model_path, device, num_gpus, max_gpu_memory, load_8bit, debug, wbits, groupsize
     )
     is_chatglm = "chatglm" in str(type(model)).lower()
 

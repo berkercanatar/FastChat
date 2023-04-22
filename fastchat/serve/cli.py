@@ -117,6 +117,8 @@ def main(args):
             args.conv_template,
             args.temperature,
             args.max_new_tokens,
+            args.wbits,
+            args.groupsize,
             chatio,
             args.debug,
         )
@@ -157,5 +159,7 @@ if __name__ == "__main__":
         help="Display style.",
     )
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--wbits", type=int, default = 0)
+    parser.add_argument("--groupsize", type=int, default = 0)
     args = parser.parse_args()
     main(args)
