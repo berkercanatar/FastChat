@@ -108,7 +108,7 @@ def load_model(
     if wbits > 0:
         from fastchat.serve.load_gptq_model import load_quantized
         print("Loading GPTQ quantized model...")
-        model = load_quantized(model_path)
+        model = load_quantized(model_path, wbits=wbits, groupsize=groupsize)
 
         print("Loading GPTQ tokenizer...")
         tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
