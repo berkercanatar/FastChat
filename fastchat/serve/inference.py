@@ -111,7 +111,7 @@ def load_model(
         model = load_quantized(model_path, wbits=wbits, groupsize=groupsize)
 
         print("Loading GPTQ tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
+        tokenizer = LlamaTokenizer.from_pretrained(model_path, use_fast=False)
     elif "chatglm" in model_path:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
         model = AutoModel.from_pretrained(
