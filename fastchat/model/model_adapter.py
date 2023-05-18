@@ -42,7 +42,7 @@ class BaseAdapter:
         tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
         if wbits > 0:
             print("Loading GPTQ quantized model...")
-            model = load_quantized(model_path, wbits=wbits, groupsize=groupsize)
+            model = load_quantized(model_path, from_pretrained_kwargs, wbits=wbits, groupsize=groupsize)
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 model_path, low_cpu_mem_usage=True, **from_pretrained_kwargs

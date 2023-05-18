@@ -9,8 +9,8 @@ from modelutils import find_layers
 from quant import make_quant
 
 
-def load_quant(model, checkpoint, wbits, groupsize=-1, faster_kernel=False, exclude_layers=['lm_head'], kernel_switch_threshold=128):
-    config = AutoConfig.from_pretrained(model)
+def load_quant(model, checkpoint, from_pretrained_kwargs: dict, wbits, groupsize=-1, faster_kernel=False, exclude_layers=['lm_head'], kernel_switch_threshold=128):
+    config = AutoConfig.from_pretrained(model, **from_pretrained_kwargs)
     def noop(*args, **kwargs):
         pass
     torch.nn.init.kaiming_uniform_ = noop 
@@ -43,7 +43,7 @@ def load_quant(model, checkpoint, wbits, groupsize=-1, faster_kernel=False, excl
     return model
 
 
-def load_quantized(model_path, wbits=4, groupsize=128, threshold=128):
+def load_quantized(model_path, from_pretrained_kwargs: dict, wbits=4, groupsize=128, threshold=128):
     path_to_model = Path(model_path)
     found_pts = list(path_to_model.glob("*.pt"))
     found_safetensors = list(path_to_model.glob("*.safetensors"))
@@ -58,6 +58,6 @@ def load_quantized(model_path, wbits=4, groupsize=128, threshold=128):
         print("Could not find the quantized model in .pt or .safetensors format, exiting...")
         exit()
 
-    model = load_quant(str(path_to_model), str(pt_path), wbits, groupsize, kernel_switch_threshold=threshold)
+    model = load_quant(str(path_to_model), str(pt_path), from_pretrained_kwargs, wbits, groupsize, kernel_switch_threshold=threshold)
 
     return model
