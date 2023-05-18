@@ -244,7 +244,7 @@ def chat_loop(
 ):
     # Model
     model, tokenizer = load_model(
-        model_path, device, num_gpus, max_gpu_memory, load_8bit, debug
+        model_path, device, num_gpus, max_gpu_memory, load_8bit, cpu_offloading, debug, wbits, groupsize
     )
     is_chatglm = "chatglm" in str(type(model)).lower()
 

@@ -29,6 +29,7 @@ from fastchat.model.monkey_patch_non_inplace import (
 )
 from fastchat.utils import get_gpu_memory
 
+from fastchat.serve.load_gptq_model import load_quantized
 
 class BaseAdapter:
     """The base and the default model adapter."""
@@ -36,11 +37,16 @@ class BaseAdapter:
     def match(self, model_path: str):
         return True
 
-    def load_model(self, model_path: str, from_pretrained_kwargs: dict):
+    def load_model(self, model_path: str, from_pretrained_kwargs: dict, wbits: int = 0, groupsize: int = 0):
+
         tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
-        model = AutoModelForCausalLM.from_pretrained(
-            model_path, low_cpu_mem_usage=True, **from_pretrained_kwargs
-        )
+        if wbits > 0:
+            print("Loading GPTQ quantized model...")
+            model = load_quantized(model_path, wbits=wbits, groupsize=groupsize)
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                model_path, low_cpu_mem_usage=True, **from_pretrained_kwargs
+            )
         return model, tokenizer
 
     def get_default_conv_template(self, model_path: str) -> Conversation:
@@ -99,6 +105,8 @@ def load_model(
     load_8bit: bool = False,
     cpu_offloading: bool = False,
     debug: bool = False,
+    wbits: int = 0,
+    groupsize: int = 0
 ):
     """Load a model from Hugging Face."""
 
@@ -212,13 +220,17 @@ class VicunaAdapter(BaseAdapter):
     def match(self, model_path: str):
         return "vicuna" in model_path
 
-    def load_model(self, model_path: str, from_pretrained_kwargs: dict):
+    def load_model(self, model_path: str, from_pretrained_kwargs: dict, wbits = 0, groupsize = 0):
         tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
-        model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            low_cpu_mem_usage=True,
-            **from_pretrained_kwargs,
-        )
+        if wbits > 0:
+            print("Loading GPTQ quantized model...")
+            model = load_quantized(model_path, wbits=wbits, groupsize=groupsize)
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                low_cpu_mem_usage=True,
+                **from_pretrained_kwargs,
+            )
         self.raise_warning_for_old_weights(model)
         return model, tokenizer
 
