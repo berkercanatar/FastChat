@@ -162,7 +162,7 @@ def load_model(
 
     # Load model
     adapter = get_model_adapter(model_path)
-    model, tokenizer = adapter.load_model(model_path, kwargs)
+    model, tokenizer = adapter.load_model(model_path, kwargs, wbits, groupsize)
 
     if (device == "cuda" and num_gpus == 1 and not cpu_offloading) or device == "mps":
         model.to(device)
